@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Tracker</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f1a;
+      color: white;
+      min-height: 100vh;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 8px;
+      color: #a78bfa;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 40px;
+      font-size: 14px;
+    }
+
+    .add-subject {
+      display: flex;
+      gap: 10px;
+      max-width: 500px;
+      margin: 0 auto 40px;
+    }
+
+    .add-subject input {
+      flex: 1;
+      padding: 12px 16px;
+      background: #1e1e2e;
+      border: 2px solid #2e2e4e;
+      border-radius: 10px;
+      color: white;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .add-subject input:focus { border-color: #a78bfa; }
+    .add-subject input::placeholder { color: #555; }
+
+    .add-btn {
+      padding: 12px 24px;
+      background: #a78bfa;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .add-btn:hover { background: #7c3aed; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #1e1e2e;
+      border-radius: 16px;
+      padding: 24px;
+      border: 2px solid #2e2e4e;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .subject-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .delete-subject {
+      background: transparent;
+      border: none;
+      color: #555;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .delete-subject:hover { color: #ef4444; }
+
+    .percentage {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .percentage-circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      border: 6px solid;
+    }
+
+    .safe { border-color: #22c55e; color: #22c55e; background: #052e16; }
+    .warning { border-color: #f59e0b; color: #f59e0b; background: #1c1000; }
+    .danger { border-color: #ef4444; color: #ef4444; background: #1a0000; }
+    .neutral { border-color: #555; color: #888; background: #1a1a2e; }
+
+    .status-text {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+      background: #0f0f1a;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .stat { text-align: center; }
+    .stat-number { font-size: 20px; font-weight: 700; color: #a78bfa; }
+    .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .present-btn, .absent-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .present-btn { background: #052e16; color: #22c55e; border: 2px solid #22c55e; }
+    .present-btn:hover { background: #22c55e; color: white; }
+
+    .absent-btn { background: #1a0000; color: #ef4444; border: 2px solid #ef4444; }
+    .absent-btn:hover { background: #ef4444; color: white; }
+
+    .warning-banner {
+      background: #1c1000;
+      border: 1px solid #f59e0b;
+      color: #f59e0b;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .danger-banner {
+      background: #1a0000;
+      border: 1px solid #ef4444;
+      color: #ef4444;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .empty {
+      text-align: center;
+      color: #555;
+      padding: 60px 20px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .empty h2 { font-size: 48px; margin-bottom: 16px; }
+    .empty p { font-size: 16px; }
+
+    .summary {
+      max-width: 1000px;
+      margin: 0 auto 30px;
+      background: #1e1e2e;
+      border-radius: 16px;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-around;
+      border: 2px solid #2e2e4e;
+    }
+
+    .summary-item { text-align: center; }
+    .summary-number { font-size: 28px; font-weight: 700; color: #a78bfa; }
+    .summary-label { font-size: 13px; color: #888; margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+  <h1>📊 Attendance Tracker</h1>
+  <p class="subtitle">Track your attendance. Stay above 75%.</p>
+
+  <div class="add-subject">
+    <input type="text" id="subjectInput" placeholder="Enter subject name..." />
+    <button class="add-btn" onclick="addSubject()">+ Add</button>
+  </div>
+
+  <div class="summary" id="summary" style="display:none">
+    <div class="summary-item">
+      <div class="summary-number" id="totalSubjects">0</div>
+      <div class="summary-label">Subjects</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-number" id="totalPresent">0</div>
+      <div class="summary-label">Total Present</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-number" id="totalClasses">0</div>
+      <div class="summary-label">Total Classes</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-number" id="overallPercent">0%</div>
+      <div class="summary-label">Overall</div>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">
+    <h2>📚</h2>
+    <p>No subjects yet. Add your first subject above!</p>
+  </div>
+
+  <script>
+    let subjects = JSON.parse(localStorage.getItem('subjects')) || [];
+
+    function save() {
+      localStorage.setItem('subjects', JSON.stringify(subjects));
+    }
+
+    function addSubject() {
+      const input = document.getElementById('subjectInput');
+      const name = input.value.trim();
+      if (!name) return;
+      subjects.push({ name, present: 0, absent: 0 });
+      input.value = '';
+      save();
+      render();
+    }
+
+    document.getElementById('subjectInput').addEventListener('keypress', e => {
+      if (e.key === 'Enter') addSubject();
+    });
+
+    function markPresent(i) {
+      subjects[i].present++;
+      save();
+      render();
+    }
+
+    function markAbsent(i) {
+      subjects[i].absent++;
+      save();
+      render();
+    }
+
+    function deleteSubject(i) {
+      if (confirm('Delete ' + subjects[i].name + '?')) {
+        subjects.splice(i, 1);
+        save();
+        render();
+      }
+    }
+
+    function getPercent(s) {
+      const total = s.present + s.absent;
+      if (total === 0) return null;
+      return Math.round((s.present / total) * 100);
+    }
+
+    function render() {
+      const grid = document.getElementById('grid');
+      const empty = document.getElementById('empty');
+      const summary = document.getElementById('summary');
+
+      if (subjects.length === 0) {
+        empty.style.display = 'block';
+        grid.style.display = 'none';
+        summary.style.display = 'none';
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.style.display = 'grid';
+      summary.style.display = 'flex';
+
+      let totalPresent = 0, totalClasses = 0;
+      subjects.forEach(s => {
+        totalPresent += s.present;
+        totalClasses += s.present + s.absent;
+      });
+
+      document.getElementById('totalSubjects').textContent = subjects.length;
+      document.getElementById('totalPresent').textContent = totalPresent;
+      document.getElementById('totalClasses').textContent = totalClasses;
+      document.getElementById('overallPercent').textContent =
+        totalClasses === 0 ? '0%' : Math.round((totalPresent / totalClasses) * 100) + '%';
+
+      grid.innerHTML = subjects.map((s, i) => {
+        const pct = getPercent(s);
+        const total = s.present + s.absent;
+        let circleClass = 'neutral';
+        let banner = '';
+
+        if (pct !== null) {
+          if (pct >= 75) circleClass = 'safe';
+          else if (pct >= 60) {
+            circleClass = 'warning';
+            banner = `<div class="warning-banner">⚠️ Attendance low! Attend next ${Math.ceil((0.75 * total - s.present) / 0.25)} classes to recover.</div>`;
+          } else {
+            circleClass = 'danger';
+            banner = `<div class="danger-banner">🚨 Critical! Below 60% attendance.</div>`;
+          }
+        }
+
+        return `
+          <div class="card">
+            <div class="card-header">
+              <span class="subject-name">${s.name}</span>
+              <button class="delete-subject" onclick="deleteSubject(${i})">🗑️</button>
+            </div>
+            <div class="percentage">
+              <div class="percentage-circle ${circleClass}">
+                ${pct !== null ? pct + '%' : '—'}
+              </div>
+              <div class="status-text">${pct === null ? 'No classes yet' : pct >= 75 ? '✅ Safe' : pct >= 60 ? '⚠️ Warning' : '🚨 Danger'}</div>
+            </div>
+            <div class="stats">
+              <div class="stat">
+                <div class="stat-number">${s.present}</div>
+                <div class="stat-label">Present</div>
+              </div>
+              <div class="stat">
+                <div class="stat-number">${s.absent}</div>
+                <div class="stat-label">Absent</div>
+              </div>
+              <div class="stat">
+                <div class="stat-number">${total}</div>
+                <div class="stat-label">Total</div>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="present-btn" onclick="markPresent(${i})">✅ Present</button>
+              <button class="absent-btn" onclick="markAbsent(${i})">❌ Absent</button>
+            </div>
+            ${banner}
+          </div>
+        `;
+      }).join('');
+    }
+
+    render();
+  </script>
+</body>
+</html>
